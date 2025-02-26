@@ -7,8 +7,8 @@ const bodyParser = require("body-parser");
 app.use(cors());
 app.use(express.static("public"));
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
@@ -86,12 +86,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     if (exerciseData.date === "") {
       exerciseData.date = new Date().toDateString();
     } else {
-      let date = new Date(exerciseData.date)
+      let date = new Date(exerciseData.date);
       if (date.toString() === "Invalid Date") {
-        res.json({ error: "Invalid Date" });
-        return
+        date = new Date();
       }
-      exerciseData.date = new Date(exerciseData.date).toDateString();
+      exerciseData.date = date.toDateString();
     }
     if (userData.log === undefined) {
       userData.log = [];
@@ -106,12 +105,12 @@ app.post("/api/users/:_id/exercises", (req, res) => {
       date: exerciseData.date,
       duration: exerciseData.duration,
       description: exerciseData.description,
-    }
+    };
     res.json(resultData);
   }
 });
 
-app.get('/api/users/:_id/logs', (req, res) => {
+app.get("/api/users/:_id/logs", (req, res) => {
   const _id = req.params._id;
   const from = req.query.from;
   const to = req.query.to;
@@ -122,19 +121,24 @@ app.get('/api/users/:_id/logs', (req, res) => {
   } else {
     let log = userData.log;
     if (from) {
-      log = log.filter((data) => data.date >= new Date(from));
+      log = log.filter((data) => new Date(data.date) >= new Date(from));
     }
     if (to) {
-      log = log.filter((data) => data.date <= new Date(to));
+      log = log.filter((data) => new Date(data.date) <= new Date(to));
     }
     if (limit) {
       log = log.slice(0, limit);
     }
-    userData.log = log;
-    userData.count = log.length;
-    res.json(userData);
+    let resultData = {
+      _id: userData._id,
+      username: userData.username,
+      __v: userData.__v,
+      count: log.length,
+      log: log,
+    }
+    res.json(resultData);
   }
-})
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("Your app is listening on port " + listener.address().port);
