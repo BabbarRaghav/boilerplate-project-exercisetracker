@@ -80,7 +80,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   } else {
     let exerciseData = {
       description: description,
-      duration: duration,
+      duration: parseInt(duration),
       date: date,
     };
     if (exerciseData.date === "") {
@@ -94,7 +94,15 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     userData.log.push(exerciseData);
     userData.__v = userData.__v + 1;
     UserData[indexToUpadte] = userData;
-    res.json(userData);
+
+    let resultData = {
+      _id: userData._id,
+      username: userData.username,
+      date: exerciseData.date,
+      duration: exerciseData.duration,
+      description: exerciseData.description,
+    }
+    res.json(resultData);
   }
 });
 
