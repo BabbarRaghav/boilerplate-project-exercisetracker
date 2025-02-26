@@ -86,6 +86,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     if (exerciseData.date === "") {
       exerciseData.date = new Date().toDateString();
     } else {
+      let date = new Date(exerciseData.date)
+      if (date.toString() === "Invalid Date") {
+        res.json({ error: "Invalid Date" });
+        return
+      }
       exerciseData.date = new Date(exerciseData.date).toDateString();
     }
     if (userData.log === undefined) {
@@ -116,13 +121,13 @@ app.get('/api/users/:_id/logs', (req, res) => {
     res.json({ error: "User not found" });
   } else {
     let log = userData.log;
-    if (from !== undefined && to !== undefined) {
-      log = log.filter((exercise) => {
-        return new Date(exercise.date) >= new Date(from) &&
-          new Date(exercise.date) <= new Date(to);
-      });
+    if (from) {
+      log = log.filter((data) => data.date >= new Date(from));
     }
-    if (limit !== undefined) {
+    if (to) {
+      log = log.filter((data) => data.date <= new Date(to));
+    }
+    if (limit) {
       log = log.slice(0, limit);
     }
     userData.log = log;
